@@ -273,22 +273,22 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header - Scaled up for desktop */}
-      <header className="bg-card border-b border-border px-4 py-3 md:px-6 md:py-4 sticky top-0 z-20">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
+      {/* Header */}
+      <header className="bg-card border-b border-border px-3 py-2 md:px-4 md:py-2.5 shrink-0">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4 md:gap-6">
-            <span className="text-sm md:text-lg font-medium text-muted-foreground">{t("test.variant")} {variant}</span>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="text-base md:text-xl font-medium">{formatTime(timeRemaining)}</span>
+          <div className="flex items-center gap-3 md:gap-4">
+            <span className="text-xs md:text-sm font-medium text-muted-foreground">{t("test.variant")} {variant}</span>
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="text-sm md:text-base font-medium">{formatTime(timeRemaining)}</span>
             </div>
           </div>
-          <div className="flex gap-2 md:gap-3">
+          <div className="flex gap-2">
             <Button 
               variant="outline" 
               size="sm" 
-              className="h-9 px-3 md:h-11 md:px-5 text-sm md:text-base bg-green-500/10 text-green-600 border-green-500/30 hover:bg-green-500/20"
+              className="h-7 px-2 md:h-8 md:px-3 text-xs bg-green-500/10 text-green-600 border-green-500/30 hover:bg-green-500/20"
               onClick={handleFinishTest}
             >
               {t("test.finish")}
@@ -296,7 +296,7 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="h-9 px-3 md:h-11 md:px-5 text-sm md:text-base text-destructive border-destructive/30 hover:bg-destructive/10"
+              className="h-7 px-2 md:h-8 md:px-3 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
               onClick={onExit}
             >
               {t("test.exit")}
@@ -319,37 +319,37 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
         }}
       />
 
-      {/* Main Content - Scaled up for desktop */}
-      <main className="flex-1 px-4 py-5 md:px-8 md:py-8 max-w-6xl mx-auto w-full overflow-y-auto">
+      {/* Main Content */}
+      <main className="flex-1 px-3 py-3 md:px-6 md:py-4 max-w-5xl mx-auto w-full overflow-y-auto">
         {/* Question Number */}
-        <div className="text-sm md:text-lg text-muted-foreground mb-3 md:mb-4">
+        <div className="text-xs md:text-sm text-muted-foreground mb-2">
           {t("test.question")} {currentQuestion} / {totalQuestions}
         </div>
 
         {/* Desktop: Two-column layout */}
-        <div className="md:flex md:gap-8 md:items-start">
+        <div className="md:flex md:gap-6 md:items-start">
           {/* Left Column: Question + Answers */}
           <div className="md:flex-1">
             {/* Question Text */}
-            <Card className="p-4 md:p-6 bg-card border-border mb-4 md:mb-5">
-              <p className="text-base md:text-xl font-medium text-foreground leading-relaxed">
+            <Card className="p-3 md:p-4 bg-card border-border mb-3">
+              <p className="text-sm md:text-base font-medium text-foreground leading-relaxed">
                 {question.text}
               </p>
             </Card>
 
-            {/* Mobile Only: Question Image */}
+            {/* Mobile Only: Question Image - Enlarged */}
             {question.image && (
-              <Card className="md:hidden p-3 bg-card border-border mb-4 overflow-hidden">
+              <Card className="md:hidden p-2 bg-card border-border mb-3 overflow-hidden">
                 <img
                   src={question.image}
                   alt="Question illustration"
-                  className="w-full max-w-[240px] h-auto mx-auto object-contain rounded"
+                  className="w-full max-w-[280px] h-auto mx-auto object-contain rounded"
                 />
               </Card>
             )}
 
             {/* Answer Options */}
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-2 md:space-y-2.5">
               {question.answers.map((answer) => {
                 const state = getAnswerState(answer.id);
                 const isSelected = selectedAnswer === answer.id;
@@ -360,8 +360,8 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
                     onClick={() => handleAnswerSelect(answer.id)}
                     disabled={isRevealed}
                     className={`
-                      w-full p-4 md:p-5 rounded-xl border text-left transition-all duration-200
-                      flex items-center gap-4
+                      w-full p-3 md:p-3.5 rounded-lg border text-left transition-all duration-200
+                      flex items-center gap-3
                       ${state === "correct" 
                         ? "border-transparent bg-green-500 text-white" 
                         : state === "incorrect"
@@ -373,7 +373,7 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
                     `}
                   >
                     <div className={`
-                      w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center flex-shrink-0
+                      w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center flex-shrink-0
                       ${state === "correct"
                         ? "bg-white/20"
                         : state === "incorrect"
@@ -382,12 +382,12 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
                       }
                     `}>
                       {state === "correct" ? (
-                        <Check className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                        <Check className="w-4 h-4 text-white" />
                       ) : state === "incorrect" ? (
-                        <X className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                        <X className="w-4 h-4 text-white" />
                       ) : null}
                     </div>
-                    <span className="text-base md:text-lg font-medium">{answer.text}</span>
+                    <span className="text-sm md:text-sm font-medium">{answer.text}</span>
                   </button>
                 );
               })}
@@ -396,8 +396,8 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
 
           {/* Right Column: Image (Desktop only) */}
           {question.image && (
-            <div className="hidden md:block md:w-[450px] md:flex-shrink-0">
-              <Card className="p-4 bg-card border-border overflow-hidden">
+            <div className="hidden md:block md:w-[320px] md:flex-shrink-0">
+              <Card className="p-3 bg-card border-border overflow-hidden">
                 <img
                   src={question.image}
                   alt="Question illustration"
@@ -409,13 +409,13 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
         </div>
       </main>
 
-      {/* Bottom Navigation - Scaled up for desktop */}
-      <footer className="bg-card border-t border-border px-4 py-4 md:px-6 md:py-5 sticky bottom-0">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+      {/* Bottom Navigation */}
+      <footer className="bg-card border-t border-border px-3 py-2.5 md:px-4 md:py-3 shrink-0">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
           <Button
             variant="outline"
-            size="lg"
-            className="h-11 px-4 md:h-14 md:px-6 text-base md:text-lg"
+            size="default"
+            className="h-9 px-3 md:h-10 md:px-4 text-sm"
             disabled={currentQuestion === 1}
             onClick={() => {
               if (autoAdvanceTimeoutRef.current) {
@@ -424,18 +424,18 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
               setCurrentQuestion(prev => Math.max(1, prev - 1));
             }}
           >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 mr-1 md:mr-2" />
+            <ChevronLeft className="w-4 h-4 mr-1" />
             {t("test.previous")}
           </Button>
           
-          <div className="text-sm md:text-lg text-muted-foreground text-center">
+          <div className="text-xs md:text-sm text-muted-foreground text-center">
             <span className="font-medium text-primary">{Object.keys(selectedAnswers).length}</span>
             <span> / {totalQuestions}</span>
           </div>
 
           <Button
-            size="lg"
-            className="h-11 px-4 md:h-14 md:px-6 text-base md:text-lg"
+            size="default"
+            className="h-9 px-3 md:h-10 md:px-4 text-sm"
             disabled={currentQuestion === totalQuestions}
             onClick={() => {
               if (autoAdvanceTimeoutRef.current) {
@@ -445,7 +445,7 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
             }}
           >
             {t("test.next")}
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 ml-1 md:ml-2" />
+            <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
       </footer>
