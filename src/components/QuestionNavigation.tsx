@@ -53,13 +53,13 @@ export const QuestionNavigation = ({
   };
 
   return (
-    <div className="bg-card/80 backdrop-blur-sm border-b border-border py-3 md:py-4 sticky top-[52px] md:top-[60px] z-10">
+    <div className="bg-card/80 backdrop-blur-sm border-b border-border py-2 md:py-2.5 shrink-0">
       <div 
         ref={scrollRef}
         className="max-w-5xl mx-auto px-3 md:px-4 overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div className="flex gap-2 md:gap-2.5 pb-1 min-w-max">
+        <div className="flex gap-1.5 md:gap-2 pb-0.5 min-w-max">
           {questions.map((questionNum) => {
             const isActive = currentQuestion === questionNum;
             
@@ -69,7 +69,7 @@ export const QuestionNavigation = ({
                 ref={isActive ? activeRef : null}
                 onClick={() => onQuestionSelect(questionNum)}
                 className={`
-                  min-w-[36px] h-9 md:min-w-[42px] md:h-10 text-sm md:text-base font-medium rounded-lg transition-all duration-200
+                  min-w-[32px] h-8 md:min-w-[36px] md:h-8 text-xs md:text-sm font-medium rounded-md transition-all duration-200
                   flex items-center justify-center
                   ${getButtonStyles(questionNum)}
                 `}

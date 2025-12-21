@@ -42,49 +42,49 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Mobile Layout */}
-      <div className="lg:hidden flex flex-col min-h-screen">
+      <div className="lg:hidden flex flex-col h-screen overflow-hidden">
         {/* Mobile Header */}
-        <header className="bg-card/80 backdrop-blur-sm border-b border-border px-4 py-3">
+        <header className="bg-card/80 backdrop-blur-sm border-b border-border px-4 py-2 shrink-0">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-bold text-foreground">{t("app.title")}</h1>
-              <p className="text-xs text-muted-foreground">{t("app.subtitle")}</p>
+              <h1 className="text-base font-bold text-foreground">{t("app.title")}</h1>
+              <p className="text-[10px] text-muted-foreground">{t("app.subtitle")}</p>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 flex flex-col items-center px-3 py-4 gap-3">
+        <main className="flex-1 flex flex-col px-3 py-3 gap-2 overflow-y-auto">
           {/* Language Selection - Mobile */}
-          <Card className="w-full p-3 bg-card/50 backdrop-blur-sm border-border">
-            <h2 className="text-xs font-medium text-muted-foreground mb-2 text-center">{t("test.selectLanguage")}</h2>
-            <div className="grid grid-cols-3 gap-2">
+          <Card className="w-full p-2.5 bg-card/50 backdrop-blur-sm border-border shrink-0">
+            <h2 className="text-[10px] font-medium text-muted-foreground mb-1.5 text-center">{t("test.selectLanguage")}</h2>
+            <div className="grid grid-cols-3 gap-1.5">
               {languages.map((lang) => (
                 <Button
                   key={lang.id}
                   variant={language === lang.id ? "default" : "outline"}
-                  className={`flex flex-col items-center gap-0.5 h-auto py-2 text-xs ${
+                  className={`flex flex-col items-center gap-0 h-auto py-1.5 text-xs ${
                     language === lang.id 
                       ? "bg-primary text-primary-foreground" 
                       : "hover:bg-primary/10 hover:border-primary"
                   }`}
                   onClick={() => setLanguage(lang.id)}
                 >
-                  <span className="text-lg">{lang.flag}</span>
-                  <span className="text-[10px] font-medium">{lang.label}</span>
+                  <span className="text-base">{lang.flag}</span>
+                  <span className="text-[9px] font-medium">{lang.label}</span>
                 </Button>
               ))}
             </div>
           </Card>
 
           {/* Variant Selection - Mobile */}
-          <Card className="w-full p-3 bg-card/50 backdrop-blur-sm border-border">
-            <h2 className="text-xs font-medium text-muted-foreground mb-2 text-center">{t("test.selectVariant")}</h2>
-            <div className="grid grid-cols-5 gap-2">
+          <Card className="w-full p-2.5 bg-card/50 backdrop-blur-sm border-border shrink-0">
+            <h2 className="text-[10px] font-medium text-muted-foreground mb-1.5 text-center">{t("test.selectVariant")}</h2>
+            <div className="grid grid-cols-5 gap-1.5">
               {visibleVariants.map((v) => (
                 <Button
                   key={v}
                   variant={selectedVariant === v ? "default" : "outline"}
-                  className={`h-10 text-sm font-medium ${
+                  className={`h-8 text-xs font-medium ${
                     selectedVariant === v 
                       ? "bg-primary text-primary-foreground" 
                       : "hover:bg-primary/10 hover:border-primary"
@@ -99,7 +99,7 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full mt-2 text-xs text-muted-foreground"
+                className="w-full mt-1.5 text-[10px] text-muted-foreground h-6"
                 onClick={() => setShowAllVariants(!showAllVariants)}
               >
                 {showAllVariants ? (
@@ -119,8 +119,8 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
 
           {/* Start Button - Mobile */}
           <Button
-            size="lg"
-            className="w-full max-w-xs h-12 text-base font-semibold shadow-lg bg-primary hover:bg-primary/90"
+            size="default"
+            className="w-full h-10 text-sm font-semibold shadow-lg bg-primary hover:bg-primary/90 shrink-0"
             onClick={handleStartTest}
             disabled={selectedVariant === null}
           >
@@ -128,25 +128,25 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
           </Button>
 
           {/* Quick Stats - Mobile */}
-          <div className="w-full grid grid-cols-3 gap-2">
-            <Card className="p-2 text-center bg-card/50 backdrop-blur-sm border-border">
-              <div className="text-lg font-bold text-primary">20</div>
-              <div className="text-[10px] text-muted-foreground">{t("test.questions")}</div>
+          <div className="w-full grid grid-cols-3 gap-1.5 shrink-0">
+            <Card className="p-1.5 text-center bg-card/50 backdrop-blur-sm border-border">
+              <div className="text-base font-bold text-primary">20</div>
+              <div className="text-[9px] text-muted-foreground">{t("test.questions")}</div>
             </Card>
-            <Card className="p-2 text-center bg-card/50 backdrop-blur-sm border-border">
-              <div className="text-lg font-bold text-primary">30</div>
-              <div className="text-[10px] text-muted-foreground">{t("test.minutes")}</div>
+            <Card className="p-1.5 text-center bg-card/50 backdrop-blur-sm border-border">
+              <div className="text-base font-bold text-primary">30</div>
+              <div className="text-[9px] text-muted-foreground">{t("test.minutes")}</div>
             </Card>
-            <Card className="p-2 text-center bg-card/50 backdrop-blur-sm border-border">
-              <div className="text-lg font-bold text-primary">80%</div>
-              <div className="text-[10px] text-muted-foreground">{t("test.passingScore")}</div>
+            <Card className="p-1.5 text-center bg-card/50 backdrop-blur-sm border-border">
+              <div className="text-base font-bold text-primary">80%</div>
+              <div className="text-[9px] text-muted-foreground">{t("test.passingScore")}</div>
             </Card>
           </div>
 
           {/* Instructions - Mobile */}
-          <Card className="w-full p-3 bg-card/50 backdrop-blur-sm border-border">
-            <h3 className="text-xs font-semibold text-foreground mb-1">{t("test.instructions")}:</h3>
-            <ul className="text-[10px] text-muted-foreground space-y-0.5">
+          <Card className="w-full p-2 bg-card/50 backdrop-blur-sm border-border shrink-0">
+            <h3 className="text-[10px] font-semibold text-foreground mb-0.5">{t("test.instructions")}:</h3>
+            <ul className="text-[9px] text-muted-foreground space-y-0">
               <li>• {t("test.instruction1")}</li>
               <li>• {t("test.instruction2")}</li>
               <li>• {t("test.instruction3")}</li>
@@ -156,47 +156,47 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:flex min-h-screen">
+      <div className="hidden lg:flex h-screen overflow-hidden">
         {/* Left Sidebar - Desktop */}
-        <aside className="w-96 xl:w-[420px] bg-card border-r border-border p-8 flex flex-col">
-          <div className="flex items-center justify-between mb-10">
+        <aside className="w-80 xl:w-96 bg-card border-r border-border p-6 flex flex-col overflow-y-auto">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{t("app.title")}</h1>
-              <p className="text-base text-muted-foreground mt-2">{t("app.subtitle")}</p>
+              <h1 className="text-xl font-bold text-foreground">{t("app.title")}</h1>
+              <p className="text-sm text-muted-foreground mt-1">{t("app.subtitle")}</p>
             </div>
           </div>
 
           {/* Language Selection - Desktop */}
-          <div className="mb-8">
-            <h2 className="text-base font-medium text-muted-foreground mb-4">{t("test.selectLanguage")}</h2>
-            <div className="flex gap-3">
+          <div className="mb-6">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">{t("test.selectLanguage")}</h2>
+            <div className="flex gap-2">
               {languages.map((lang) => (
                 <Button
                   key={lang.id}
                   variant={language === lang.id ? "default" : "outline"}
-                  className={`flex-1 flex flex-col items-center gap-2 h-auto py-4 text-base ${
+                  className={`flex-1 flex flex-col items-center gap-1 h-auto py-2.5 ${
                     language === lang.id 
                       ? "bg-primary text-primary-foreground" 
                       : "hover:bg-primary/10 hover:border-primary"
                   }`}
                   onClick={() => setLanguage(lang.id)}
                 >
-                  <span className="text-3xl">{lang.flag}</span>
-                  <span className="text-sm font-medium">{lang.label}</span>
+                  <span className="text-xl">{lang.flag}</span>
+                  <span className="text-xs font-medium">{lang.label}</span>
                 </Button>
               ))}
             </div>
           </div>
 
           {/* Variant Selection - Desktop */}
-          <div className="mb-8">
-            <h2 className="text-base font-medium text-muted-foreground mb-4">{t("test.selectVariant")}</h2>
-            <div className="grid grid-cols-5 gap-2.5">
+          <div className="mb-6">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">{t("test.selectVariant")}</h2>
+            <div className="grid grid-cols-5 gap-2">
               {visibleVariants.map((v) => (
                 <Button
                   key={v}
                   variant={selectedVariant === v ? "default" : "outline"}
-                  className={`h-12 text-base font-medium ${
+                  className={`h-9 text-sm font-medium ${
                     selectedVariant === v 
                       ? "bg-primary text-primary-foreground" 
                       : "hover:bg-primary/10 hover:border-primary"
@@ -211,17 +211,17 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full mt-3 text-sm text-muted-foreground"
+                className="w-full mt-2 text-xs text-muted-foreground"
                 onClick={() => setShowAllVariants(!showAllVariants)}
               >
                 {showAllVariants ? (
                   <>
-                    <ChevronUp className="w-4 h-4 mr-1.5" />
+                    <ChevronUp className="w-3.5 h-3.5 mr-1" />
                     {language === 'ru' ? 'Скрыть' : language === 'uz' ? 'Яшириш' : 'Yashirish'}
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="w-4 h-4 mr-1.5" />
+                    <ChevronDown className="w-3.5 h-3.5 mr-1" />
                     {language === 'ru' ? `Показать все (${TOTAL_VARIANTS})` : language === 'uz' ? `Барчасини кўрсатиш (${TOTAL_VARIANTS})` : `Barchasini ko'rsatish (${TOTAL_VARIANTS})`}
                   </>
                 )}
@@ -230,28 +230,28 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
           </div>
 
           {/* Category Options - Desktop */}
-          <div className="mb-8">
-            <h2 className="text-base font-medium text-muted-foreground mb-4">{t("test.selectCategory")}</h2>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="mb-6">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">{t("test.selectCategory")}</h2>
+            <div className="grid grid-cols-2 gap-3">
               {categories.map((cat) => (
                 <Button
                   key={cat.id}
                   variant="outline"
-                  className="flex flex-col items-center gap-3 h-auto py-5 hover:bg-primary/10 hover:border-primary"
+                  className="flex flex-col items-center gap-2 h-auto py-3 hover:bg-primary/10 hover:border-primary"
                 >
-                  <div className={`w-12 h-12 rounded-full ${cat.color} flex items-center justify-center`}>
-                    <cat.icon className="w-6 h-6 text-white" />
+                  <div className={`w-9 h-9 rounded-full ${cat.color} flex items-center justify-center`}>
+                    <cat.icon className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm font-medium">{cat.label}</span>
+                  <span className="text-xs font-medium">{cat.label}</span>
                 </Button>
               ))}
             </div>
           </div>
 
           {/* Instructions - Desktop */}
-          <Card className="p-5 bg-muted/30 border-border mt-auto">
-            <h3 className="text-base font-semibold text-foreground mb-3">{t("test.instructions")}:</h3>
-            <ul className="text-sm text-muted-foreground space-y-2">
+          <Card className="p-4 bg-muted/30 border-border mt-auto">
+            <h3 className="text-sm font-semibold text-foreground mb-2">{t("test.instructions")}:</h3>
+            <ul className="text-xs text-muted-foreground space-y-1">
               <li>• {t("test.instruction1")}</li>
               <li>• {t("test.instruction2")}</li>
               <li>• {t("test.instruction3")}</li>
@@ -260,39 +260,39 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
         </aside>
 
         {/* Main Content - Desktop */}
-        <main className="flex-1 flex items-center justify-center p-12 bg-gradient-to-br from-background to-primary/5">
-          <div className="max-w-lg w-full text-center">
+        <main className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-background to-primary/5 overflow-y-auto">
+          <div className="max-w-md w-full text-center">
             {/* Hero Section */}
-            <div className="mb-10">
-              <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Car className="w-16 h-16 text-primary" />
+            <div className="mb-6">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                <Car className="w-10 h-10 text-primary" />
               </div>
-              <h2 className="text-4xl font-bold text-foreground mb-3">{t("test.ready")}</h2>
-              <p className="text-lg text-muted-foreground">{t("test.readyDescription")}</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t("test.ready")}</h2>
+              <p className="text-sm text-muted-foreground">{t("test.readyDescription")}</p>
             </div>
 
             {/* Stats Cards - Desktop */}
-            <div className="grid grid-cols-3 gap-6 mb-10">
-              <Card className="p-6 bg-card border-border">
-                <HelpCircle className="w-8 h-8 text-primary mx-auto mb-3" />
-                <div className="text-3xl font-bold text-foreground">20</div>
-                <div className="text-sm text-muted-foreground">{t("test.questions")}</div>
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <Card className="p-4 bg-card border-border">
+                <HelpCircle className="w-6 h-6 text-primary mx-auto mb-2" />
+                <div className="text-2xl font-bold text-foreground">20</div>
+                <div className="text-xs text-muted-foreground">{t("test.questions")}</div>
               </Card>
-              <Card className="p-6 bg-card border-border">
-                <Clock className="w-8 h-8 text-primary mx-auto mb-3" />
-                <div className="text-3xl font-bold text-foreground">30</div>
-                <div className="text-sm text-muted-foreground">{t("test.minutes")}</div>
+              <Card className="p-4 bg-card border-border">
+                <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
+                <div className="text-2xl font-bold text-foreground">30</div>
+                <div className="text-xs text-muted-foreground">{t("test.minutes")}</div>
               </Card>
-              <Card className="p-6 bg-card border-border">
-                <CheckCircle className="w-8 h-8 text-primary mx-auto mb-3" />
-                <div className="text-3xl font-bold text-foreground">80%</div>
-                <div className="text-sm text-muted-foreground">{t("test.passingScore")}</div>
+              <Card className="p-4 bg-card border-border">
+                <CheckCircle className="w-6 h-6 text-primary mx-auto mb-2" />
+                <div className="text-2xl font-bold text-foreground">80%</div>
+                <div className="text-xs text-muted-foreground">{t("test.passingScore")}</div>
               </Card>
             </div>
 
             {/* Selected Variant Display */}
             {selectedVariant && (
-              <div className="mb-6 text-xl font-semibold text-primary">
+              <div className="mb-4 text-base font-semibold text-primary">
                 {t("test.selected")}: {t("test.variant")} {selectedVariant}
               </div>
             )}
@@ -300,7 +300,7 @@ export const TestStartPage = ({ onStartTest }: TestStartPageProps) => {
             {/* Start Button - Desktop */}
             <Button
               size="lg"
-              className="w-full h-16 text-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 bg-primary hover:bg-primary/90"
+              className="w-full h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 bg-primary hover:bg-primary/90"
               onClick={handleStartTest}
               disabled={selectedVariant === null}
             >
