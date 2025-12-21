@@ -35,7 +35,11 @@
     "loading": "юкланмоқда...",
     "noQuestionsFound": "Савол топилмади",
     "errorLoadingData": "Маълумотларни юклашда хатолик",
-    "goBack": "Орқага қайтиш"
+    "goBack": "Орқага қайтиш",
+    "finishConfirmTitle": "Тестни якунлашни хоҳлайсизми?",
+    "finishConfirmDescription": "Жавобларни ўзгартириб бўлмайди",
+    "cancel": "Бекор қилиш",
+    "confirm": "Ҳа, якунлаш"
   },
   "categories": {
     "theory": "Назария",
@@ -54,5 +58,16 @@
     "password": "Парол",
     "submit": "Кириш",
     "invalidCredentials": "Нотўғри фойдаланувчи номи ёки парол"
+  },
+  "results": {
+    "title": "Тест натижалари",
+    "correct": "Тўғри жавоблар",
+    "incorrect": "Нотўғри жавоблар",
+    "score": "Балл",
+    "passed": "Ўтдингиз!",
+    "failed": "Ўтмадингиз",
+    "timeTaken": "Сарфланган вақт",
+    "backToHome": "Бош саҳифага қайтиш",
+    "tryAgain": "Қайта уриниш"
   }
 }

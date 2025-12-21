@@ -1,8 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { QuestionNavigation } from "./QuestionNavigation";
+import { TestResults } from "./TestResults";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Clock, ChevronLeft, ChevronRight, X, Check } from "lucide-react";
 
 interface QuestionData {
@@ -52,8 +63,14 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
   const [error, setError] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
+  const [correctAnswers, setCorrectAnswers] = useState<Record<number, boolean>>({});
   const [revealedQuestions, setRevealedQuestions] = useState<Record<number, boolean>>({});
-  const [timeRemaining, setTimeRemaining] = useState(30 * 60); // 30 minutes in seconds
+  const [timeRemaining, setTimeRemaining] = useState(30 * 60);
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [testStartTime] = useState(Date.now());
+  
+  const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch test data from JSON file
   useEffect(() => {
@@ -76,7 +93,6 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
 
         // Transform JSON data to our Question format
         const transformedQuestions: Question[] = variantData.data.map((q, idx) => {
-          // questionLang can be 'oz' (Latin), 'uz' (Cyrillic), or 'ru' (Russian)
           const answerLang = questionLang as keyof typeof q.answers.answer;
           const answers = q.answers.answer[answerLang] || q.answers.answer.uz;
           return {
@@ -109,6 +125,7 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
       setTimeRemaining(prev => {
         if (prev <= 0) {
           clearInterval(timer);
+          setShowResults(true);
           return 0;
         }
         return prev - 1;
@@ -116,6 +133,15 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  // Cleanup auto-advance timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimeoutRef.current) {
+        clearTimeout(autoAdvanceTimeoutRef.current);
+      }
+    };
   }, []);
 
   const formatTime = (seconds: number) => {
@@ -132,15 +158,32 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
   const handleAnswerSelect = (answerId: number) => {
     if (isRevealed) return;
     
+    const isCorrect = answerId === question.correctAnswer;
+    
     setSelectedAnswers(prev => ({
       ...prev,
       [currentQuestion]: answerId
+    }));
+    
+    setCorrectAnswers(prev => ({
+      ...prev,
+      [currentQuestion]: isCorrect
     }));
     
     setRevealedQuestions(prev => ({
       ...prev,
       [currentQuestion]: true
     }));
+
+    // Auto-advance to next question after 2.5 seconds
+    if (currentQuestion < totalQuestions) {
+      if (autoAdvanceTimeoutRef.current) {
+        clearTimeout(autoAdvanceTimeoutRef.current);
+      }
+      autoAdvanceTimeoutRef.current = setTimeout(() => {
+        setCurrentQuestion(prev => Math.min(totalQuestions, prev + 1));
+      }, 2500);
+    }
   };
 
   const getAnswerState = (answerId: number) => {
@@ -150,12 +193,58 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
     return "default";
   };
 
+  const handleFinishTest = () => {
+    setShowFinishDialog(true);
+  };
+
+  const confirmFinishTest = () => {
+    setShowFinishDialog(false);
+    setShowResults(true);
+  };
+
+  const getTestStats = () => {
+    let correct = 0;
+    let incorrect = 0;
+    
+    Object.entries(correctAnswers).forEach(([_, isCorrect]) => {
+      if (isCorrect) correct++;
+      else incorrect++;
+    });
+    
+    return { correct, incorrect };
+  };
+
+  // Show results screen
+  if (showResults) {
+    const stats = getTestStats();
+    const timeTaken = Math.floor((Date.now() - testStartTime) / 1000);
+    
+    return (
+      <TestResults
+        totalQuestions={totalQuestions}
+        correctAnswers={stats.correct}
+        incorrectAnswers={stats.incorrect}
+        timeTaken={timeTaken}
+        variant={variant}
+        onBackToHome={onExit}
+        onTryAgain={() => {
+          setSelectedAnswers({});
+          setCorrectAnswers({});
+          setRevealedQuestions({});
+          setCurrentQuestion(1);
+          setTimeRemaining(30 * 60);
+          setShowResults(false);
+        }}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">{t("test.variant")} {variant} {t("test.loading")}</p>
+          <div className="w-10 h-10 md:w-12 md:h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground text-lg">{t("test.variant")} {variant} {t("test.loading")}</p>
         </div>
       </div>
     );
@@ -164,9 +253,9 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="p-6 max-w-md text-center">
-          <p className="text-destructive mb-4">{error}</p>
-          <Button onClick={onExit}>{t("test.goBack")}</Button>
+        <Card className="p-8 max-w-md text-center">
+          <p className="text-destructive mb-6 text-lg">{error}</p>
+          <Button size="lg" onClick={onExit}>{t("test.goBack")}</Button>
         </Card>
       </div>
     );
@@ -175,9 +264,9 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
   if (!question) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="p-6 max-w-md text-center">
-          <p className="text-muted-foreground mb-4">{t("test.noQuestionsFound")}</p>
-          <Button onClick={onExit}>{t("test.goBack")}</Button>
+        <Card className="p-8 max-w-md text-center">
+          <p className="text-muted-foreground mb-6 text-lg">{t("test.noQuestionsFound")}</p>
+          <Button size="lg" onClick={onExit}>{t("test.goBack")}</Button>
         </Card>
       </div>
     );
@@ -185,28 +274,29 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Compact Header */}
-      <header className="bg-card border-b border-border px-3 py-2 sticky top-0 z-20">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-medium text-muted-foreground">{t("test.variant")} {variant}</span>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Clock className="w-3.5 h-3.5" />
-              <span className="text-sm font-medium">{formatTime(timeRemaining)}</span>
+      {/* Header - Scaled up for desktop */}
+      <header className="bg-card border-b border-border px-4 py-3 md:px-6 md:py-4 sticky top-0 z-20">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4 md:gap-6">
+            <span className="text-sm md:text-lg font-medium text-muted-foreground">{t("test.variant")} {variant}</span>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="text-base md:text-xl font-medium">{formatTime(timeRemaining)}</span>
             </div>
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex gap-2 md:gap-3">
             <Button 
               variant="outline" 
               size="sm" 
-              className="h-7 px-2 text-xs bg-green-500/10 text-green-600 border-green-500/30 hover:bg-green-500/20"
+              className="h-9 px-3 md:h-11 md:px-5 text-sm md:text-base bg-green-500/10 text-green-600 border-green-500/30 hover:bg-green-500/20"
+              onClick={handleFinishTest}
             >
               {t("test.finish")}
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
-              className="h-7 px-2 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+              className="h-9 px-3 md:h-11 md:px-5 text-sm md:text-base text-destructive border-destructive/30 hover:bg-destructive/10"
               onClick={onExit}
             >
               {t("test.exit")}
@@ -220,40 +310,46 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
         currentQuestion={currentQuestion}
         totalQuestions={totalQuestions}
         answeredQuestions={selectedAnswers}
-        onQuestionSelect={setCurrentQuestion}
+        correctAnswers={correctAnswers}
+        onQuestionSelect={(num) => {
+          if (autoAdvanceTimeoutRef.current) {
+            clearTimeout(autoAdvanceTimeoutRef.current);
+          }
+          setCurrentQuestion(num);
+        }}
       />
 
-      {/* Main Content */}
-      <main className="flex-1 px-3 py-4 max-w-6xl mx-auto w-full overflow-y-auto">
+      {/* Main Content - Scaled up for desktop */}
+      <main className="flex-1 px-4 py-5 md:px-8 md:py-8 max-w-6xl mx-auto w-full overflow-y-auto">
         {/* Question Number */}
-        <div className="text-xs text-muted-foreground mb-2">
+        <div className="text-sm md:text-lg text-muted-foreground mb-3 md:mb-4">
           {t("test.question")} {currentQuestion} / {totalQuestions}
         </div>
 
         {/* Desktop: Two-column layout */}
-        <div className="md:flex md:gap-6 md:items-start">
+        <div className="md:flex md:gap-8 md:items-start">
           {/* Left Column: Question + Answers */}
           <div className="md:flex-1">
             {/* Question Text */}
-            <Card className="p-3 md:p-4 bg-card border-border mb-3">
-              <p className="text-sm md:text-base font-medium text-foreground leading-relaxed">
+            <Card className="p-4 md:p-6 bg-card border-border mb-4 md:mb-5">
+              <p className="text-base md:text-xl font-medium text-foreground leading-relaxed">
                 {question.text}
               </p>
             </Card>
 
             {/* Mobile Only: Question Image */}
             {question.image && (
-              <Card className="md:hidden p-2 bg-card border-border mb-3 overflow-hidden">
+              <Card className="md:hidden p-3 bg-card border-border mb-4 overflow-hidden">
                 <img
                   src={question.image}
                   alt="Question illustration"
-                  className="w-full max-w-[200px] h-auto mx-auto object-contain rounded"
+                  className="w-full max-w-[240px] h-auto mx-auto object-contain rounded"
                 />
               </Card>
             )}
 
             {/* Answer Options */}
-            <div className="space-y-2">
+            <div className="space-y-3 md:space-y-4">
               {question.answers.map((answer) => {
                 const state = getAnswerState(answer.id);
                 const isSelected = selectedAnswer === answer.id;
@@ -264,8 +360,8 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
                     onClick={() => handleAnswerSelect(answer.id)}
                     disabled={isRevealed}
                     className={`
-                      w-full p-3 rounded-lg border text-left transition-all duration-200
-                      flex items-center gap-3
+                      w-full p-4 md:p-5 rounded-xl border text-left transition-all duration-200
+                      flex items-center gap-4
                       ${state === "correct" 
                         ? "border-transparent bg-green-500 text-white" 
                         : state === "incorrect"
@@ -277,7 +373,7 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
                     `}
                   >
                     <div className={`
-                      w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0
+                      w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center flex-shrink-0
                       ${state === "correct"
                         ? "bg-white/20"
                         : state === "incorrect"
@@ -286,12 +382,12 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
                       }
                     `}>
                       {state === "correct" ? (
-                        <Check className="w-4 h-4 text-white" />
+                        <Check className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       ) : state === "incorrect" ? (
-                        <X className="w-4 h-4 text-white" />
+                        <X className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       ) : null}
                     </div>
-                    <span className="text-sm font-medium">{answer.text}</span>
+                    <span className="text-base md:text-lg font-medium">{answer.text}</span>
                   </button>
                 );
               })}
@@ -300,8 +396,8 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
 
           {/* Right Column: Image (Desktop only) */}
           {question.image && (
-            <div className="hidden md:block md:w-[400px] md:flex-shrink-0">
-              <Card className="p-3 bg-card border-border overflow-hidden">
+            <div className="hidden md:block md:w-[450px] md:flex-shrink-0">
+              <Card className="p-4 bg-card border-border overflow-hidden">
                 <img
                   src={question.image}
                   alt="Question illustration"
@@ -313,36 +409,67 @@ export const TestInterface = ({ onExit, variant }: TestInterfaceProps) => {
         </div>
       </main>
 
-      {/* Bottom Navigation */}
-      <footer className="bg-card border-t border-border px-3 py-3 sticky bottom-0">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
+      {/* Bottom Navigation - Scaled up for desktop */}
+      <footer className="bg-card border-t border-border px-4 py-4 md:px-6 md:py-5 sticky bottom-0">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
           <Button
             variant="outline"
-            size="sm"
-            className="h-9 px-3 text-sm"
+            size="lg"
+            className="h-11 px-4 md:h-14 md:px-6 text-base md:text-lg"
             disabled={currentQuestion === 1}
-            onClick={() => setCurrentQuestion(prev => Math.max(1, prev - 1))}
+            onClick={() => {
+              if (autoAdvanceTimeoutRef.current) {
+                clearTimeout(autoAdvanceTimeoutRef.current);
+              }
+              setCurrentQuestion(prev => Math.max(1, prev - 1));
+            }}
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 mr-1 md:mr-2" />
             {t("test.previous")}
           </Button>
           
-          <div className="text-xs text-muted-foreground text-center">
+          <div className="text-sm md:text-lg text-muted-foreground text-center">
             <span className="font-medium text-primary">{Object.keys(selectedAnswers).length}</span>
             <span> / {totalQuestions}</span>
           </div>
 
           <Button
-            size="sm"
-            className="h-9 px-3 text-sm"
+            size="lg"
+            className="h-11 px-4 md:h-14 md:px-6 text-base md:text-lg"
             disabled={currentQuestion === totalQuestions}
-            onClick={() => setCurrentQuestion(prev => Math.min(totalQuestions, prev + 1))}
+            onClick={() => {
+              if (autoAdvanceTimeoutRef.current) {
+                clearTimeout(autoAdvanceTimeoutRef.current);
+              }
+              setCurrentQuestion(prev => Math.min(totalQuestions, prev + 1));
+            }}
           >
             {t("test.next")}
-            <ChevronRight className="w-4 h-4 ml-1" />
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 ml-1 md:ml-2" />
           </Button>
         </div>
       </footer>
+
+      {/* Finish Confirmation Dialog */}
+      <AlertDialog open={showFinishDialog} onOpenChange={setShowFinishDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl">{t("test.finishConfirmTitle")}</AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              {t("test.finishConfirmDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="h-11">{t("test.cancel")}</AlertDialogCancel>
+            <AlertDialogAction 
+              className="h-11 bg-green-500 hover:bg-green-600"
+              onClick={confirmFinishTest}
+            >
+              {t("test.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
