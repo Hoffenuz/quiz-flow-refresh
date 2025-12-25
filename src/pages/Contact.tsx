@@ -16,6 +16,8 @@ import {
   AlertCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Contact() {
   const [name, setName] = useState("");
@@ -25,6 +27,7 @@ export default function Contact() {
   const [loading, setLoading] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   function formatPhone(v: string) {
     setPhone(v.replace(/\D/g, "").substring(0, 9));
@@ -33,7 +36,7 @@ export default function Contact() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    if (!name || !phone) {
+    if (!name || !subject) {
       toast({
         title: "Xatolik",
         description: "Iltimos, barcha majburiy maydonlarni to'ldiring.",
@@ -44,19 +47,38 @@ export default function Contact() {
 
     setLoading(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Yuborildi!",
-      description: "Xabaringiz muvaffaqiyatli yuborildi. Tez orada javob beramiz.",
-    });
-    
-    setName("");
-    setPhone("");
-    setSubject("");
-    setMessage("");
-    setLoading(false);
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert({
+          name,
+          phone: phone ? `+998${phone}` : null,
+          subject,
+          message,
+          user_id: user?.id || null
+        });
+
+      if (error) throw error;
+      
+      toast({
+        title: "Yuborildi!",
+        description: "Xabaringiz muvaffaqiyatli yuborildi. Tez orada javob beramiz.",
+      });
+      
+      setName("");
+      setPhone("");
+      setSubject("");
+      setMessage("");
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      toast({
+        title: "Xatolik",
+        description: "Xabarni yuborishda xatolik yuz berdi. Qaytadan urinib ko'ring.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   const contactInfo = [
