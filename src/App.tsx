@@ -5,7 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import Index from "./pages/Index";
+import Home from "./pages/Home";
+import Belgilar from "./pages/Belgilar";
+import Contact from "./pages/Contact";
+import Darslik from "./pages/Darslik";
+import Variant from "./pages/Variant";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -21,7 +25,11 @@ const App = () => (
             <Toaster />
             <Sonner />
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/belgilar" element={<Belgilar />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/darslik" element={<Darslik />} />
+              <Route path="/variant" element={<Variant />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
