@@ -51,6 +51,10 @@ interface QuestionDataFormat2 {
     answer: boolean;
   }>;
   image?: string;
+  media?: {
+    exist: boolean;
+    name: string;
+  };
 }
 
 interface Question {
@@ -81,6 +85,11 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
+// Generate a unique storage key based on test configuration
+const getStorageKey = (dataSource: string, testName: string) => {
+  return `test_state_${testName}_${dataSource.replace(/[^a-zA-Z0-9]/g, '_')}`;
+};
+
 export const TestInterfaceBase = ({ 
   onExit, 
   dataSource, 
@@ -93,22 +102,88 @@ export const TestInterfaceBase = ({
   const { t, questionLang } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(true);
+  
+  const storageKey = getStorageKey(dataSource, testName);
+  
+  // Load saved state from localStorage
+  const loadSavedState = () => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Check if saved state is still valid (not expired - within timeLimit)
+        const elapsed = Math.floor((Date.now() - parsed.testStartTime) / 1000);
+        if (elapsed < timeLimit) {
+          return parsed;
+        } else {
+          // State expired, clear it
+          localStorage.removeItem(storageKey);
+        }
+      }
+    } catch (e) {
+      console.error('Error loading saved state:', e);
+    }
+    return null;
+  };
+  
+  const savedState = loadSavedState();
+  
+  const [questions, setQuestions] = useState<Question[]>(savedState?.questions || []);
+  const [loading, setLoading] = useState(!savedState);
   const [error, setError] = useState<string | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
-  const [correctAnswers, setCorrectAnswers] = useState<Record<number, boolean>>({});
-  const [revealedQuestions, setRevealedQuestions] = useState<Record<number, boolean>>({});
-  const [timeRemaining, setTimeRemaining] = useState(timeLimit);
+  const [currentQuestion, setCurrentQuestion] = useState(savedState?.currentQuestion || 1);
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>(savedState?.selectedAnswers || {});
+  const [correctAnswers, setCorrectAnswers] = useState<Record<number, boolean>>(savedState?.correctAnswers || {});
+  const [revealedQuestions, setRevealedQuestions] = useState<Record<number, boolean>>(savedState?.revealedQuestions || {});
+  const [testStartTime] = useState(savedState?.testStartTime || Date.now());
+  const [timeRemaining, setTimeRemaining] = useState(() => {
+    if (savedState) {
+      const elapsed = Math.floor((Date.now() - savedState.testStartTime) / 1000);
+      return Math.max(0, timeLimit - elapsed);
+    }
+    return timeLimit;
+  });
   const [showFinishDialog, setShowFinishDialog] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [testStartTime] = useState(Date.now());
   
   const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Fetch test data from JSON file
+  
+  // Save state to localStorage whenever relevant state changes
   useEffect(() => {
+    if (questions.length > 0 && !showResults) {
+      const stateToSave = {
+        questions,
+        currentQuestion,
+        selectedAnswers,
+        correctAnswers,
+        revealedQuestions,
+        testStartTime,
+        timeRemaining
+      };
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+      } catch (e) {
+        console.error('Error saving state:', e);
+      }
+    }
+  }, [questions, currentQuestion, selectedAnswers, correctAnswers, revealedQuestions, testStartTime, timeRemaining, storageKey, showResults]);
+  
+  // Clear saved state when test is completed
+  const clearSavedState = () => {
+    try {
+      localStorage.removeItem(storageKey);
+    } catch (e) {
+      console.error('Error clearing saved state:', e);
+    }
+  };
+
+  // Fetch test data from JSON file (skip if we have saved questions)
+  useEffect(() => {
+    // Skip fetching if we already have saved questions
+    if (savedState?.questions?.length > 0) {
+      return;
+    }
+    
     const fetchTestData = async () => {
       try {
         setLoading(true);
@@ -147,10 +222,19 @@ export const TestInterfaceBase = ({
           // Format 2: Simple format with choises array (700baza.json / 700baza2.json)
           if (q.choises && Array.isArray(q.choises)) {
             const correctIndex = q.choises.findIndex((c: { answer: boolean }) => c.answer === true);
+            
+            // Handle media field for image: /images/${media.name}.webp
+            let questionImage: string | undefined;
+            if (q.media && q.media.exist === true && q.media.name) {
+              questionImage = `/images/${q.media.name}.webp`;
+            } else if (q.image) {
+              questionImage = `${imagePrefix}${q.image}`;
+            }
+            
             return {
               id: idx + 1,
               text: q.question,
-              image: q.image ? `${imagePrefix}${q.image}` : undefined,
+              image: questionImage,
               correctAnswer: correctIndex + 1, // 1-indexed
               answers: q.choises.map((choice: { text: string }, ansIdx: number) => ({
                 id: ansIdx + 1,
@@ -189,7 +273,7 @@ export const TestInterfaceBase = ({
     };
 
     fetchTestData();
-  }, [dataSource, questionLang, t, questionCount, randomize, imagePrefix]);
+  }, [dataSource, questionLang, t, questionCount, randomize, imagePrefix, savedState]);
 
   // Timer
   useEffect(() => {
@@ -197,6 +281,7 @@ export const TestInterfaceBase = ({
       setTimeRemaining(prev => {
         if (prev <= 0) {
           clearInterval(timer);
+          clearSavedState();
           setShowResults(true);
           return 0;
         }
@@ -271,6 +356,7 @@ export const TestInterfaceBase = ({
 
   const confirmFinishTest = () => {
     setShowFinishDialog(false);
+    clearSavedState();
     setShowResults(true);
   };
 
@@ -298,8 +384,12 @@ export const TestInterfaceBase = ({
         incorrectAnswers={stats.incorrect}
         timeTaken={timeTaken}
         variant={0}
-        onBackToHome={onExit}
+        onBackToHome={() => {
+          clearSavedState();
+          onExit();
+        }}
         onTryAgain={() => {
+          clearSavedState();
           setSelectedAnswers({});
           setCorrectAnswers({});
           setRevealedQuestions({});
