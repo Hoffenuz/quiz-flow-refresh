@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Socials } from "@/components/home/Socials";
 import { useState } from "react";
 import { 
   Play, 
@@ -255,9 +254,6 @@ export default function Home() {
           </Card>
         </div>
       </section>
-
-      {/* Social Media Section */}
-      <Socials />
     </MainLayout>
   );
 }
