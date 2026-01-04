@@ -147,10 +147,17 @@ export const TestInterfaceBase = ({
           // Format 2: Simple format with choises array (700baza.json / 700baza2.json)
           if (q.choises && Array.isArray(q.choises)) {
             const correctIndex = q.choises.findIndex((c: { answer: boolean }) => c.answer === true);
+            // Handle media field: { exist: true, name: "1" } -> "/images/1.png"
+            let imagePath: string | undefined;
+            if (q.media?.exist && q.media?.name) {
+              imagePath = `${imagePrefix}${q.media.name}.png`;
+            } else if (q.image) {
+              imagePath = `${imagePrefix}${q.image}`;
+            }
             return {
               id: idx + 1,
               text: q.question,
-              image: q.image ? `${imagePrefix}${q.image}` : undefined,
+              image: imagePath,
               correctAnswer: correctIndex + 1, // 1-indexed
               answers: q.choises.map((choice: { text: string }, ansIdx: number) => ({
                 id: ansIdx + 1,
@@ -328,10 +335,16 @@ export const TestInterfaceBase = ({
               const transformedQuestions: Question[] = selectedQuestions.map((q, idx) => {
                 if (q.choises && Array.isArray(q.choises)) {
                   const correctIndex = q.choises.findIndex((c: { answer: boolean }) => c.answer === true);
+                  let imagePath: string | undefined;
+                  if (q.media?.exist && q.media?.name) {
+                    imagePath = `${imagePrefix}${q.media.name}.png`;
+                  } else if (q.image) {
+                    imagePath = `${imagePrefix}${q.image}`;
+                  }
                   return {
                     id: idx + 1,
                     text: q.question,
-                    image: q.image ? `${imagePrefix}${q.image}` : undefined,
+                    image: imagePath,
                     correctAnswer: correctIndex + 1,
                     answers: q.choises.map((choice: { text: string }, ansIdx: number) => ({
                       id: ansIdx + 1,
