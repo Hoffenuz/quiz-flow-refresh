@@ -123,7 +123,7 @@ export default function Contact() {
 
       {/* Contact Section */}
       <section className="py-16 bg-background">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-3xl mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Contact Info */}
             <Card className="border-none shadow-lg">

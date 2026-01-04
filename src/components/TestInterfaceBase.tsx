@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Clock, ChevronLeft, ChevronRight, X, Check, Home } from "lucide-react";
+import { Clock, ChevronLeft, ChevronRight, X, Check } from "lucide-react";
 
 // Format 1: Original format with nested question/answers objects
 interface QuestionDataFormat1 {
@@ -86,7 +86,7 @@ export const TestInterfaceBase = ({
   dataSource, 
   testName,
   questionCount = 20,
-  timeLimit = 30 * 60,
+  timeLimit = 25 * 60,
   randomize = false,
   imagePrefix = "/images/"
 }: TestInterfaceBaseProps) => {
@@ -300,12 +300,68 @@ export const TestInterfaceBase = ({
         variant={0}
         onBackToHome={onExit}
         onTryAgain={() => {
+          // Reset state and re-fetch to get NEW random questions
           setSelectedAnswers({});
           setCorrectAnswers({});
           setRevealedQuestions({});
           setCurrentQuestion(1);
           setTimeRemaining(timeLimit);
           setShowResults(false);
+          setLoading(true);
+          // Trigger re-fetch by calling fetchTestData again
+          fetch(dataSource)
+            .then(res => res.json())
+            .then(jsonData => {
+              let rawArray: any[] = [];
+              if (jsonData.data && Array.isArray(jsonData.data)) {
+                rawArray = jsonData.data;
+              } else if (Array.isArray(jsonData)) {
+                rawArray = jsonData;
+              } else if (jsonData.questions && Array.isArray(jsonData.questions)) {
+                rawArray = jsonData.questions;
+              }
+              
+              let selectedQuestions = randomize 
+                ? shuffleArray(rawArray).slice(0, questionCount)
+                : rawArray.slice(0, questionCount);
+
+              const transformedQuestions: Question[] = selectedQuestions.map((q, idx) => {
+                if (q.choises && Array.isArray(q.choises)) {
+                  const correctIndex = q.choises.findIndex((c: { answer: boolean }) => c.answer === true);
+                  return {
+                    id: idx + 1,
+                    text: q.question,
+                    image: q.image ? `${imagePrefix}${q.image}` : undefined,
+                    correctAnswer: correctIndex + 1,
+                    answers: q.choises.map((choice: { text: string }, ansIdx: number) => ({
+                      id: ansIdx + 1,
+                      text: choice.text,
+                    })),
+                  };
+                }
+                
+                const typedQ = q as QuestionDataFormat1;
+                const answerLang = questionLang as 'oz' | 'uz' | 'ru';
+                const questionObj = typedQ.question;
+                const answers = typedQ.answers?.answer?.[answerLang] || typedQ.answers?.answer?.uz || typedQ.answers?.answer?.oz || [];
+                const questionText = typeof questionObj === 'string' ? questionObj : (questionObj?.[answerLang] || questionObj?.uz || questionObj?.oz || '');
+                const photoField = typedQ.photo || typedQ.image;
+                
+                return {
+                  id: idx + 1,
+                  text: questionText,
+                  image: photoField ? `${imagePrefix}${photoField}` : undefined,
+                  correctAnswer: typedQ.answers?.status || 1,
+                  answers: answers.map((answerText, ansIdx) => ({
+                    id: ansIdx + 1,
+                    text: answerText,
+                  })),
+                };
+              });
+              setQuestions(transformedQuestions);
+              setLoading(false);
+            })
+            .catch(() => setLoading(false));
         }}
       />
     );
@@ -364,15 +420,6 @@ export const TestInterfaceBase = ({
               onClick={handleFinishTest}
             >
               {t("test.finish")}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-7 px-2 md:h-8 md:px-3 text-xs"
-              onClick={() => navigate('/')}
-            >
-              <Home className="w-3.5 h-3.5 mr-1" />
-              Bosh sahifa
             </Button>
             <Button 
               variant="outline" 
