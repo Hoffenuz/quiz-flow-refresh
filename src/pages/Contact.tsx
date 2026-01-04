@@ -109,173 +109,160 @@ export default function Contact() {
 
   return (
     <MainLayout>
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary via-primary-hover to-primary py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
-            Aloqa Ma'lumotlari
+      {/* Full Screen Contact Section */}
+      <section className="min-h-[calc(100vh-80px)] bg-background flex flex-col">
+        {/* Header with title */}
+        <div className="w-full px-6 md:px-12 lg:px-16 pt-8 md:pt-12">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
+            Aloqa
           </h1>
-          <p className="text-lg text-primary-foreground/90 inline-block bg-primary-foreground/10 px-6 py-3 rounded-full backdrop-blur-sm">
+          <p className="text-muted-foreground mt-2 text-lg">
             Biz bilan bog'laning — savollaringizga javob beramiz
           </p>
         </div>
-      </section>
 
-      {/* Contact Section */}
-      <section className="py-16 bg-background">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Contact Info */}
-            <Card className="border-none shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl">Bizning Ma'lumotlar</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {contactInfo.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <div key={index} className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-6 h-6 text-primary" />
+        {/* Main Content - Two columns spread across screen */}
+        <div className="flex-1 w-full px-6 md:px-12 lg:px-16 py-8 md:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 h-full">
+            {/* Left Column: Contact Info */}
+            <div className="flex flex-col justify-between">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">Bizning Ma'lumotlar</h2>
+                <div className="space-y-5">
+                  {contactInfo.map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={index} className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">{item.label}</p>
+                          {item.href ? (
+                            <a 
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-foreground hover:text-primary transition-colors"
+                            >
+                              {item.value}
+                            </a>
+                          ) : (
+                            <p className="font-medium text-foreground">{item.value}</p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">{item.label}</p>
-                        {item.href ? (
-                          <a 
-                            href={item.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-medium text-foreground hover:text-primary transition-colors"
-                          >
-                            {item.value}
-                          </a>
-                        ) : (
-                          <p className="font-medium text-foreground">{item.value}</p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
+                    );
+                  })}
+                </div>
+              </div>
 
-            {/* Contact Form */}
-            <Card className="border-none shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl">Xabar Yozing</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Ismingiz *</Label>
+              {/* Terms Section */}
+              <div className="mt-8 lg:mt-0">
+                <button
+                  onClick={() => setShowTerms(!showTerms)}
+                  className="w-full p-4 flex items-center justify-between text-left bg-card hover:bg-secondary/50 transition-colors rounded-lg border border-border"
+                >
+                  <span className="font-semibold text-foreground">
+                    Platforma bilan bog'lanish shartlari
+                  </span>
+                  <ChevronDown 
+                    className={`w-5 h-5 text-muted-foreground transition-transform duration-300 ${
+                      showTerms ? "rotate-180" : ""
+                    }`} 
+                  />
+                </button>
+                
+                <div 
+                  className={`overflow-hidden transition-all duration-500 ${
+                    showTerms ? "max-h-[1000px] mt-4" : "max-h-0"
+                  }`}
+                >
+                  <div className="p-4 space-y-3 text-muted-foreground text-sm leading-relaxed bg-card rounded-lg border border-border">
+                    <p>
+                      Aloqa bo'limi orqali yuboradigan barcha ma'lumotlar va xabarlaringiz platforma ma'murlari tomonidan maxfiy tarzda ko'rib chiqiladi.
+                    </p>
+                    <ol className="list-decimal list-inside space-y-2">
+                      <li><strong>Xabar yuborish:</strong> Aloqa formasi orqali yuborilgan har bir xabar platforma ma'muriyatiga yetib boradi.</li>
+                      <li><strong>Rasmiy va to'g'ri ma'lumot:</strong> Iltimos, ismingiz, telefon raqamingiz va xabar matnini aniq ko'rsating.</li>
+                      <li><strong>Maxfiylik:</strong> Platformaga yuborilgan ma'lumotlaringiz uchinchi shaxslarga oshkor qilinmaydi.</li>
+                      <li><strong>Bog'lanish muddati:</strong> Administratorlar so'rovingizni imkon qadar tezroq ko'rib chiqadi.</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Contact Form */}
+            <div className="flex flex-col">
+              <h2 className="text-2xl font-semibold text-foreground mb-6">Xabar Yozing</h2>
+              <form onSubmit={handleSubmit} className="space-y-5 flex-1 flex flex-col">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Ismingiz *</Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="To'liq ismingiz"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefon raqam *</Label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-4 bg-secondary text-muted-foreground border border-r-0 border-input rounded-l-md text-sm">
+                      +998
+                    </span>
                     <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="To'liq ismingiz"
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => formatPhone(e.target.value)}
+                      placeholder="90 123 45 67"
+                      maxLength={9}
+                      className="rounded-l-none"
                       required
                     />
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefon raqam *</Label>
-                    <div className="flex">
-                      <span className="inline-flex items-center px-4 bg-secondary text-muted-foreground border border-r-0 border-input rounded-l-md text-sm">
-                        +998
-                      </span>
-                      <Input
-                        id="phone"
-                        value={phone}
-                        onChange={(e) => formatPhone(e.target.value)}
-                        placeholder="90 123 45 67"
-                        maxLength={9}
-                        className="rounded-l-none"
-                        required
-                      />
-                    </div>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Mavzu</Label>
+                  <Input
+                    id="subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Xabar mavzusi"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Mavzu</Label>
-                    <Input
-                      id="subject"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      placeholder="Xabar mavzusi"
-                    />
-                  </div>
+                <div className="space-y-2 flex-1">
+                  <Label htmlFor="message">Xabar</Label>
+                  <Textarea
+                    id="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Xabaringizni yozing..."
+                    className="min-h-[120px] lg:min-h-[160px]"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Xabar</Label>
-                    <Textarea
-                      id="message"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Xabaringizni yozing..."
-                      rows={4}
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full gap-2" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                        Yuborilmoqda...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Yuborish
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Terms Section */}
-          <Card className="mt-8 border-none shadow-lg overflow-hidden">
-            <button
-              onClick={() => setShowTerms(!showTerms)}
-              className="w-full p-6 flex items-center justify-between text-left bg-card hover:bg-secondary/50 transition-colors"
-            >
-              <span className="font-bold text-lg text-foreground">
-                Platforma bilan bog'lanish shartlari
-              </span>
-              <ChevronDown 
-                className={`w-6 h-6 text-muted-foreground transition-transform duration-300 ${
-                  showTerms ? "rotate-180" : ""
-                }`} 
-              />
-            </button>
-            
-            <div 
-              className={`overflow-hidden transition-all duration-500 ${
-                showTerms ? "max-h-[2000px]" : "max-h-0"
-              }`}
-            >
-              <div className="p-6 pt-0 space-y-4 text-muted-foreground leading-relaxed">
-                <p>
-                  Aloqa bo'limi orqali yuboradigan barcha ma'lumotlar va xabarlaringiz platforma ma'murlari tomonidan maxfiy tarzda ko'rib chiqiladi.
-                </p>
-                <ol className="list-decimal list-inside space-y-3">
-                  <li>
-                    <strong>Xabar yuborish:</strong> Aloqa formasi orqali yuborilgan har bir xabar platforma ma'muriyatiga yetib boradi.
-                  </li>
-                  <li>
-                    <strong>Rasmiy va to'g'ri ma'lumot:</strong> Iltimos, ismingiz, telefon raqamingiz va xabar matnini aniq ko'rsating.
-                  </li>
-                  <li>
-                    <strong>Maxfiylik:</strong> Platformaga yuborilgan ma'lumotlaringiz uchinchi shaxslarga oshkor qilinmaydi.
-                  </li>
-                  <li>
-                    <strong>Bog'lanish muddati:</strong> Administratorlar so'rovingizni imkon qadar tezroq ko'rib chiqadi.
-                  </li>
-                </ol>
-              </div>
+                <Button type="submit" className="w-full gap-2 mt-auto" size="lg" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                      Yuborilmoqda...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Yuborish
+                    </>
+                  )}
+                </Button>
+              </form>
             </div>
-          </Card>
+          </div>
         </div>
       </section>
     </MainLayout>
