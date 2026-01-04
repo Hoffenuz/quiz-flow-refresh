@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Clock, ChevronLeft, ChevronRight, X, Check, Home } from "lucide-react";
+import { Clock, ChevronLeft, ChevronRight, X, Check } from "lucide-react";
 
 interface QuestionData {
   id?: number;
@@ -312,15 +312,6 @@ export const MavzuliTestInterface = ({ onExit, topicId, topicName }: MavzuliTest
               onClick={handleFinishTest}
             >
               {t("test.finish")}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-7 px-2 md:h-8 md:px-3 text-xs"
-              onClick={() => navigate('/')}
-            >
-              <Home className="w-3.5 h-3.5 mr-1" />
-              Bosh sahifa
             </Button>
             <Button 
               variant="outline" 

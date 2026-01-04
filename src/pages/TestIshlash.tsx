@@ -37,7 +37,7 @@ export default function TestIshlash() {
         dataSource={`/${dataFile}`}
         testName="Test ishlash"
         questionCount={20}
-        timeLimit={30 * 60}
+        timeLimit={25 * 60}
         randomize={true}
       />
     );
@@ -114,7 +114,7 @@ export default function TestIshlash() {
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
                 <Clock className="w-6 h-6 text-primary" />
               </div>
-              <span className="text-xl font-bold text-foreground">30</span>
+              <span className="text-xl font-bold text-foreground">25</span>
               <span className="text-xs text-muted-foreground">Daqiqa</span>
             </div>
             <div className="flex flex-col items-center">

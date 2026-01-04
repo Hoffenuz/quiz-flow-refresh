@@ -94,7 +94,7 @@ export const TestResults = ({
             onClick={onBackToHome}
           >
             <Home className="w-5 h-5 mr-2" />
-            {t("results.backToHome")}
+            Bosh sahifaga qaytish
           </Button>
           <Button
             className="flex-1 h-12 md:h-14 text-base md:text-lg"
