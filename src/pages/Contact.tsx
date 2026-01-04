@@ -113,7 +113,7 @@ export default function Contact() {
       <section className="min-h-[calc(100vh-80px)] bg-background flex flex-col">
         {/* Header with title */}
         <div className="w-full px-6 md:px-12 lg:px-16 pt-8 md:pt-12">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
             Aloqa
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
