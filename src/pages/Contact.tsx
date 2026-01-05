@@ -110,25 +110,25 @@ export default function Contact() {
   return (
     <MainLayout>
       {/* Full Screen Contact Section */}
-      <section className="min-h-[calc(100vh-80px)] bg-background flex flex-col">
+      <section className="bg-background">
         {/* Header with title */}
-        <div className="w-full px-6 md:px-12 lg:px-16 pt-8 md:pt-12">
+        <div className="w-full px-6 md:px-12 lg:px-16 pt-4 md:pt-6">
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
             Aloqa
           </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
+          <p className="text-muted-foreground mt-1 text-base">
             Biz bilan bog'laning — savollaringizga javob beramiz
           </p>
         </div>
 
         {/* Main Content - Two columns spread across screen */}
-        <div className="flex-1 w-full px-6 md:px-12 lg:px-16 py-8 md:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 h-full">
+        <div className="w-full px-6 md:px-12 lg:px-16 py-4 md:py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
             {/* Left Column: Contact Info */}
-            <div className="flex flex-col justify-between">
-              <div className="space-y-6">
-                <h2 className="text-2xl font-semibold text-foreground">Bizning Ma'lumotlar</h2>
-                <div className="space-y-5">
+            <div className="flex flex-col">
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-foreground">Bizning Ma'lumotlar</h2>
+                <div className="space-y-4">
                   {contactInfo.map((item, index) => {
                     const Icon = item.icon;
                     return (
@@ -158,7 +158,7 @@ export default function Contact() {
               </div>
 
               {/* Terms Section */}
-              <div className="mt-8 lg:mt-0">
+              <div className="mt-4">
                 <button
                   onClick={() => setShowTerms(!showTerms)}
                   className="w-full p-4 flex items-center justify-between text-left bg-card hover:bg-secondary/50 transition-colors rounded-lg border border-border"
@@ -195,8 +195,8 @@ export default function Contact() {
 
             {/* Right Column: Contact Form */}
             <div className="flex flex-col">
-              <h2 className="text-2xl font-semibold text-foreground mb-6">Xabar Yozing</h2>
-              <form onSubmit={handleSubmit} className="space-y-5 flex-1 flex flex-col">
+              <h2 className="text-xl font-semibold text-foreground mb-4">Xabar Yozing</h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Ismingiz *</Label>
                   <Input
@@ -227,18 +227,18 @@ export default function Contact() {
                 </div>
 
 
-                <div className="space-y-2 flex-1">
+                <div className="space-y-2">
                   <Label htmlFor="message">Xabar</Label>
                   <Textarea
                     id="message"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Xabaringizni yozing..."
-                    className="min-h-[120px] lg:min-h-[160px]"
+                    className="min-h-[100px]"
                   />
                 </div>
 
-                <Button type="submit" className="w-full gap-2 mt-4" size="lg" disabled={loading}>
+                <Button type="submit" className="w-full gap-2" size="lg" disabled={loading}>
                   {loading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
