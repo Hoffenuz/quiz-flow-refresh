@@ -22,7 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function Contact() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [subject, setSubject] = useState("");
+  
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -36,7 +36,7 @@ export default function Contact() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    if (!name || !subject) {
+    if (!name || !phone) {
       toast({
         title: "Xatolik",
         description: "Iltimos, barcha majburiy maydonlarni to'ldiring.",
@@ -53,7 +53,7 @@ export default function Contact() {
         .insert({
           name,
           phone: phone ? `+998${phone}` : null,
-          subject,
+          subject: "Aloqa formasi",
           message,
           user_id: user?.id || null
         });
@@ -67,7 +67,7 @@ export default function Contact() {
       
       setName("");
       setPhone("");
-      setSubject("");
+      
       setMessage("");
     } catch (error) {
       console.error('Error submitting contact form:', error);
@@ -226,15 +226,6 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Mavzu</Label>
-                  <Input
-                    id="subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Xabar mavzusi"
-                  />
-                </div>
 
                 <div className="space-y-2 flex-1">
                   <Label htmlFor="message">Xabar</Label>
@@ -247,7 +238,7 @@ export default function Contact() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full gap-2 mt-auto" size="lg" disabled={loading}>
+                <Button type="submit" className="w-full gap-2 mt-4" size="lg" disabled={loading}>
                   {loading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
