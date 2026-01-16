@@ -101,6 +101,17 @@ export function MainLayout({ children }: MainLayoutProps) {
 
             {/* Mobile menu button */}
             <div className="lg:hidden flex items-center gap-2">
+              {/* Pro Button - Mobile */}
+              <Link to="/pro">
+                <Button 
+                  size="sm"
+                  className="bg-[hsl(var(--cta-green))] hover:bg-[hsl(var(--cta-green-hover))] text-white font-semibold px-3"
+                >
+                  <Crown className="w-4 h-4 mr-1" />
+                  Pro
+                </Button>
+              </Link>
+              
               {user ? (
                 <Button
                   variant="ghost"
